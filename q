@@ -796,7 +796,7 @@ if options.mode not in ['fluffy','relaxed','strict']:
 db = Sqlite3DB()
 
 # Create SQL statment 
-sql_object = Sql('%s' % args[0])
+sql_object = Sql('%s' % args[0].decode(locale.getpreferredencoding()))
 
 # If the user flagged for a tab-delimited file then set the delimiter to tab
 if options.tab_delimited:
