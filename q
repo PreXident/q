@@ -140,7 +140,8 @@ parser.add_option("-c","--column-count",dest="column_count",default=None,
                 help="Specific column count when using relaxed or strict mode")
 parser.add_option("-k","--keep-leading-whitespace",dest="keep_leading_whitespace_in_values",default=False,action="store_true",
                 help="Keep leading whitespace in values. Default behavior strips leading whitespace off values, in order to provide out-of-the-box usability for simple use cases. If you need to preserve whitespace, use this flag.")
-
+parser.add_option("-j", "--print-header", dest="print_header", default="",
+                help="Output header to be printed as first line")
 
 def regexp(regular_expression, data):
     return re.search(regular_expression, data) is not None
@@ -920,6 +921,9 @@ if options.output_encoding and options.output_encoding != 'none':
 	STDOUT = codecs.getwriter(options.output_encoding)(sys.stdout)
 
 try:
+	if options.print_header:
+		STDOUT.write(options.print_header.decode(locale.getpreferredencoding()) + "\n")
+
 	for rownum,row in enumerate(m):
 		row_str = []
 		for i,col in enumerate(row):
