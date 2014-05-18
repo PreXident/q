@@ -128,6 +128,8 @@ parser.add_option("-f","--formatting",dest="formatting",default=default_formatti
                 help="Output-level formatting, in the format X=fmt,Y=fmt etc, where X,Y are output column numbers (e.g. 1 for first SELECT column etc.")
 parser.add_option("-e","--encoding",dest="encoding",default=default_encoding,
                 help="Input file encoding. Defaults to UTF-8. set to none for not setting any encoding - faster, but at your own risk...")
+parser.add_option("-E","--output-encoding",dest="output_encoding",default=default_encoding,
+                help="Output encoding. Defaults to UTF-8. set to none for not setting any encoding - faster, but at your own risk...")
 parser.add_option("-v","--version",dest="version",default=False,action="store_true",
                 help="Print version")
 parser.add_option("-A","--analyze-only",dest="analyze_only",action='store_true',
@@ -833,6 +835,13 @@ if options.encoding != 'none':
 		print >>sys.stderr,"Encoding %s could not be found" % options.encoding
 		sys.exit(10)
 
+if options.output_encoding != 'none':
+	try:
+		codecs.lookup(options.output_encoding)
+	except LookupError:
+		print >>sys.stderr,"Output encoding %s could not be found" % options.output_encoding
+		sys.exit(10)
+
 try:
 	table_creators = []
 	# Get each "table name" which is actually the file name
@@ -906,6 +915,9 @@ if options.formatting:
 	formatting_dict = dict([(x.split("=")[0],x.split("=")[1]) for x in options.formatting.split(",")])
 else:
 	formatting_dict = None
+
+if options.output_encoding and options.output_encoding != 'none':
+	STDOUT = codecs.getwriter(options.output_encoding)(sys.stdout)
 
 try:
 	for rownum,row in enumerate(m):
