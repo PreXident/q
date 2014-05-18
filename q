@@ -142,6 +142,8 @@ parser.add_option("-k","--keep-leading-whitespace",dest="keep_leading_whitespace
                 help="Keep leading whitespace in values. Default behavior strips leading whitespace off values, in order to provide out-of-the-box usability for simple use cases. If you need to preserve whitespace, use this flag.")
 parser.add_option("-j", "--print-header", dest="print_header", default="",
                 help="Output header to be printed as first line")
+parser.add_option("-n", "--new-line", dest="new_line", default="\n",
+                help="String to delimit individual records, default \\n")
 
 def regexp(regular_expression, data):
     return re.search(regular_expression, data) is not None
@@ -920,9 +922,12 @@ else:
 if options.output_encoding and options.output_encoding != 'none':
 	STDOUT = codecs.getwriter(options.output_encoding)(sys.stdout)
 
+if options.new_line:
+	options.new_line = options.new_line.decode(locale.getpreferredencoding())
+
 try:
 	if options.print_header:
-		STDOUT.write(options.print_header.decode(locale.getpreferredencoding()) + "\n")
+		STDOUT.write(options.print_header.decode(locale.getpreferredencoding()) + options.new_line)
 
 	for rownum,row in enumerate(m):
 		row_str = []
@@ -940,7 +945,7 @@ try:
 			else:
 				row_str.append(fmt_str % "")
 
-		STDOUT.write(output_delimiter.join(row_str)+"\n")
+		STDOUT.write(output_delimiter.join(row_str)+options.new_line)
 except IOError,e:
 	if e.errno == 32:
 		# broken pipe, that's ok
