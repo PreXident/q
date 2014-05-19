@@ -117,7 +117,7 @@ parser.add_option("-b","--beautify",dest="beautify",default=default_beautify,act
 parser.add_option("-z","--gzipped",dest="gzipped",default=default_gzipped,action="store_true",
                 help="Data is gzipped. Useful for reading from stdin. For files, .gz means automatic gunzipping")
 parser.add_option("-d","--delimiter",dest="delimiter",default=default_delimiter,
-                help="Field delimiter. If none specified, then space is used as the delimiter. If you need multi-character delimiters, run the tool with engine version 1 by adding '-E v1'. Using v1 will also revert to the old behavior where if no delimiter is provided, then any whitespace will be considered as a delimiter.")
+                help="Field delimiter. If none specified, then space is used as the delimiter. Only ascii characters are supported.")
 parser.add_option("-D","--output-delimiter",dest="output_delimiter",default=default_output_delimiter,
                 help="Field delimiter for output. If none specified, then the -d delimiter is used if present, or space if no delimiter is specified")
 parser.add_option("-t","--tab-delimited",dest="tab_delimited",default=False,action="store_true",
@@ -775,8 +775,8 @@ def determine_max_col_lengths(m):
 			if new_len > max_lengths[col_index]:
 				max_lengths[col_index] = new_len
 	return max_lengths
-		
-(options,args) = parser.parse_args()
+
+(options,args) = parser.parse_args(map(lambda a: a.decode(locale.getpreferredencoding()), sys.argv[1:]))
 
 if options.version:
 	print "q version %s" % q_version
@@ -794,7 +794,7 @@ if options.mode not in ['fluffy','relaxed','strict']:
 db = Sqlite3DB()
 
 # Create SQL statment 
-sql_object = Sql('%s' % args[0].decode(locale.getpreferredencoding()))
+sql_object = Sql('%s' % args[0])
 
 # If the user flagged for a tab-delimited file then set the delimiter to tab
 if options.tab_delimited:
@@ -811,7 +811,7 @@ if options.keep_leading_whitespace_in_values:
 else:
 	skip_initial_space = True
 
-q_dialect = {'skipinitialspace': skip_initial_space, 'quoting': 0, 'delimiter': options.delimiter, 'quotechar': '"', 'doublequote': False}
+q_dialect = {'skipinitialspace': skip_initial_space, 'quoting': 0, 'delimiter': options.delimiter.encode('ascii'), 'quotechar': '"', 'doublequote': False}
 csv.register_dialect('q',**q_dialect)
 file_reading_method = 'csv'
 
@@ -916,11 +916,13 @@ if options.output_encoding and options.output_encoding != 'none':
 	STDOUT = codecs.getwriter(options.output_encoding)(sys.stdout)
 
 if options.new_line:
-	options.new_line = options.new_line.decode(locale.getpreferredencoding())
+	options.new_line = options.new_line
 
 try:
 	if(options.output_header):
-		STDOUT.write(output_delimiter.join(map(lambda x: x[0], m.description))+"\n")
+		getDecodedColumnName = lambda x: x[0].decode(options.encoding) if options.encoding != 'none' else x[0]
+		column_names = map(getDecodedColumnName, m.description)
+		STDOUT.write(output_delimiter.join(column_names)+options.new_line)
 
 	for rownum,row in enumerate(m):
 		row_str = []
