@@ -265,7 +265,7 @@ class Sql(object):
 		# Holds original SQL
 		self.sql = sql
 		# Holds sql parts 
-		self.sql_parts = sql.split()
+		self.sql_parts = re.split('(:[^:]*:)', sql)
 	
 		# Set of qtable names
 		self.qtable_names = set()
@@ -281,35 +281,16 @@ class Sql(object):
 		while idx < len(self.sql_parts):
 			# Get the part string
 			part = self.sql_parts[idx]
-			# If it's a FROM or a JOIN
-			if part.upper() in ['FROM','JOIN']:
-				# and there is nothing after it,
-				if idx == len(self.sql_parts)-1:
-					# Just fail
-					raise Exception('FROM/JOIN is missing a table name after it')
-				
-				
-				qtable_name = self.sql_parts[idx+1]
-				# Otherwise, the next part contains the qtable name. In most cases the next part will be only the qtable name.
-				# We handle one special case here, where this is a subquery as a column: "SELECT (SELECT ... FROM qtable),100 FROM ...". 
-				# In that case, there will be an ending paranthesis as part of the name, and we want to handle this case gracefully.
-				# This is obviously a hack of a hack :) Just until we have complete parsing capabilities
-				if ')' in qtable_name:
-					leftover = qtable_name[qtable_name.index(')'):]
-					self.sql_parts.insert(idx+2,leftover)
-					qtable_name = qtable_name[:qtable_name.index(')')]
-					self.sql_parts[idx+1] = qtable_name
-					
-
+			# If it is a file name
+			if part.startswith(':'):
+				if not part.endswith(':'):
+					raise Exception('Unended file name!')
+				qtable_name = part[1:-1] # Get rid of colons
 				self.qtable_names.add(qtable_name)
-
 				if qtable_name not in self.qtable_name_positions.keys():
 					self.qtable_name_positions[qtable_name] = []
-				
-				self.qtable_name_positions[qtable_name].append(idx+1)
-				idx += 2
-			else:
-				idx += 1
+				self.qtable_name_positions[qtable_name].append(idx)
+			idx += 1
 
 	def set_effective_table_name(self,qtable_name,effective_table_name):
 		if qtable_name not in self.qtable_names:
