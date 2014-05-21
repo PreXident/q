@@ -5,18 +5,17 @@ q allows direct SQL-like queries on CSVs/TSVs (and any other tabular text files)
 "q allows performing SQL-like statements on tabular text data, including joins and subqueries"
 ```
 
-## Highlights
-
-* Seamless multi-table SQL support, including joins. filenames are just used instead of table names (use - for stdin)
+Main features:
 * Automatic column name and column type detection (Allows working more naturally with the data)
-* Multiple parsing modes - relaxed and strict. Relaxed mode allows to easily parse semi-structured data, such as log files.
-* Standard installation - RPM, Homebrew (Mac). Debian package coming soon.
-* Support for quoted fields 
-* Full UTF-8 support (and other encodings)
-* Handling of gzipped files
-* Output delimiter matching and selection
-* Output beautifier
-* man page when installed through the RPM package
+* Seamless multi-table SQL support, including joins. filenames are just used instead of table names (use - for stdin)
+* Support for quoted fields
+* Full encoding support, including UTF-8
+
+Please download the official `1.3.0` below according to instructions. Version `1.4.0` will be out soon.
+
+I would love to get any requests and comments you have on the tool.
+
+You can use this [gitter chat room](https://gitter.im/harelba/q) for contacting me directly. I'm trying to be available at the chat room as much as possible.
 
 ## Examples
 __Example 1:__
@@ -84,12 +83,12 @@ harel 119
 avahi 2
 ```
 
-A beginner's tutorial can be found [here](EXAMPLES.markdown)
+A beginner's tutorial can be found [here](examples/EXAMPLES.markdown)
 
 ## Installation
 Current stable version is `1.3.0`. 
 
-No special requirements other than python >= 2.5 are needed.
+Requirements: Just Python 2.5 and up or Python 2.4 with sqlite3 module installed. Python 3.x is not supported yet.
 
 ### Mac Users
 Just run `brew install q`. 
@@ -120,17 +119,15 @@ SQL is a declarative language for data, and as such it allows me to define what 
 
 The goal of this tool is to provide a bridge between the world of text files and of SQL.
 
-You can use this [gitter chat room](https://gitter.im/harelba/q) for contacting me directly. I'm trying to be available at the chat room as much as possible.
-
 ## Usage
 q's basic usage is very simple:`q <flags> <query>`, but it has lots of features under the hood and in the flags that can be passed to the command.
 
 Simplest execution is q "SELECT * FROM myfile" which prints the entire file.
 
-Complete information can be found [here](USAGE.markdown)
+Complete information can be found [here](doc/USAGE.markdown)
 
 ## Implementation
-Some implementation details can be found [here](IMPLEMENTATION.markdown)
+Some implementation details can be found [here](doc/IMPLEMENTATION.markdown)
 
 ## Limitations
 * No checks and bounds on data size
@@ -145,10 +142,10 @@ Some implementation details can be found [here](IMPLEMENTATION.markdown)
 * Provide mechanisms beyond SELECT - INSERT and CREATE TABLE SELECT and such.
 
 ## Rationale
-Some information regarding the rationale for this tool and related philosophy can be found [here](RATIONALE.markdown)
+Some information regarding the rationale for this tool and related philosophy can be found [here](doc/RATIONALE.markdown)
 
 ## Change log
-History of changes can be found [here](CHANGELOG.markdown)
+History of changes can be found [here](doc/CHANGELOG.markdown)
 
 ## Contact
 Any feedback/suggestions/complaints regarding this tool would be much appreciated. Contributions are most welcome as well, of course.
